@@ -995,10 +995,10 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
-"@influxdata/giraffe@0.17.6":
-  version "0.17.6"
-  resolved "https://registry.yarnpkg.com/@influxdata/giraffe/-/giraffe-0.17.6.tgz#33e94a98dea81601f2759488605e206493a34555"
-  integrity sha512-7HayQtfHXDVlxus++RXRa8UzwPeYKvMQOIp0sEuGRuQdsT5D/wo6aT8Q17vCj5230UvMYjU60s7xi58wg/AUcw==
+"@influxdata/giraffe@0.18.0":
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/@influxdata/giraffe/-/giraffe-0.18.0.tgz#30345878f2941f432489bdde303ca0ffffa3dcb8"
+  integrity sha512-iBCvYBjlKDh4Ken7rI95BaxX16ypYhvf80tfON/+EXwTEEC74IbJDh2C/P/xBvkpHrua3uzHmTLgmFwr10Fb9Q==
 
 "@influxdata/influxdb-client@1.2.0-nightly.9":
   version "1.2.0-nightly.9"
