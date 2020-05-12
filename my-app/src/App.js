@@ -1,101 +1,29 @@
 import React from "react";
 import { useState } from "react";
 import "./App.css";
-import { InfluxDB, FluxTableMetaData } from "@influxdata/influxdb-client";
+import { InfluxDB} from "@influxdata/influxdb-client";
 import {
   Plot,
-  newTable,
   timeFormatter,
   NINETEEN_EIGHTY_FOUR,
   fromFlux,
-  fromRows,
 } from "@influxdata/giraffe";
 
-// const now = Date.now()
-// const numberOfRecords = 80
-// const recordsPerLine = 40
-// const maxValue = 100
-// const TIME_COL = []
-// const VALUE_COL = []
-// const CPU_COL = []
+const valueAxisLabel = "GHz";
 
-// function getRandomNumber(max) {
-//     return Math.random() * Math.floor(max)
-// }
-// for (let i = 0; i < numberOfRecords; i += 1) {
-//     VALUE_COL.push(getRandomNumber(maxValue))
-//     CPU_COL.push(`cpu${Math.floor(i / recordsPerLine)}`)
-//     TIME_COL.push(now + (i % recordsPerLine) * 1000 * 60)
-// }
-
-const valueAxisLabel = "bytes";
-
-// const table = newTable(numberOfRecords)
-//     .addColumn('_time', 'time', TIME_COL)
-//     .addColumn('_value', 'number', VALUE_COL)
-//     .addColumn('cpu', 'string', CPU_COL)
-
-// console.log(table)
-
-const numberOfRecords = 0;
-const recordsPerLine = 2;
-const maxValue = 100;
-const TIME_COL = [];
-const VALUE_COL = [];
-const LOCATION_COL = [];
-
-// function getRandomNumber(max) {
-//     return Math.random() * Math.floor(max)
-// }
-// for (let i = 0; i < numberOfRecords; i += 1) {
-//     VALUE_COL.push(getRandomNumber(maxValue))
-//     CPU_COL.push(`cpu${Math.floor(i / recordsPerLine)}`)
-//     TIME_COL.push(now + (i % recordsPerLine) * 1000 * 60)
-// }
-
-// const valueAxisLabel = "bytes"
-
-// console.log(table)
-
-// const rows = [
-//   {foo: 1, bar: 0, baz: 0, a: 'A', b: '1'},
-//   {foo: 3, bar: 1, baz: 1, a: 'B', b: '2'},
-//   {foo: 5, bar: 2, baz: 0, a: 'C', b: '3'},
-// ]
-
-// const schema: {[k: string]: ColumnType} = {
-//   foo: 'number',
-//   bar: 'time',
-//   baz: 'boolean',
-//   a: 'string',
-// }
-
-// const table = newTable(numberOfRecords)
-//     .addColumn('_time', 'time', TIME_COL)
-//     .addColumn('_value', 'number', VALUE_COL)
-//     .addColumn('location', 'string', LOCATION_COL)
 
 const fetchData = (setMethod, setFetching) => {
   const url = "http://localhost:9999";
   const bucket = "my-bucket";
   const org = "my-org";
-  const token =
-    "cpLwIwX9sq-bwCRdoKS_gAmzjQFVgCow3DBRNJ5cDM7GnLyFVEuD80-uQ6-cY5z1zZKj8wPiZyMjcHDZPUYhNA==";
+  const token = "cpLwIwX9sq-bwCRdoKS_gAmzjQFVgCow3DBRNJ5cDM7GnLyFVEuD80-uQ6-cY5z1zZKj8wPiZyMjcHDZPUYhNA==";
   const influxDB = new InfluxDB({
     url,
     token,
   });
-  // const fluxQuery =
-  //   'from(bucket: "my-bucket")\
-  //   |> range(start: -5m) |> filter(fn: (r) => r["_measurement"] == "cpu")\
-  //   |> filter(fn: (r) => r["_field"] == "usage_user")\
-  //   |> filter(fn: (r) => r["cpu"] == "cpu-total" )\
-  //   |> limit(n:5)'
-  // const fluxQuery =
-  //   'from(bucket:"my-bucket") |> range(start: -30d) |> filter(fn: (r) => r._measurement == "temperature")';
   const fluxQuery =
   'from(bucket: "my-bucket")\
-   |> range(start: -5m)\
+  |> range(start: -5m)\
   |> filter(fn: (r) => r["_measurement"] == "cpu")\
   |> filter(fn: (r) => r["_field"] == "usage_system")\
   |> filter(fn: (r) => r["cpu"] == "cpu-total")'
@@ -106,14 +34,7 @@ const fetchData = (setMethod, setFetching) => {
   let csv = "";
 
   queryApi.queryLines(fluxQuery, {
-    // next(row, tableMeta) {
-    //   const o = tableMeta.toObject(row);
-    //   console.log(o);
-    //   table.push(fromRows(row, tableMeta));
-    // string += "shfhf"
     next(line) {
-      // console.log(line)
-      // csv = csv + line;
       csv = `${csv}${line}\n`;
     },
 
@@ -124,20 +45,19 @@ const fetchData = (setMethod, setFetching) => {
     complete() {
       console.log(table);
       console.log("csv");
-      console.log(csv);
-      // console.log("QUERY FINISHED");
-      const CSV = `#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string,string,string
-#group,false,false,true,true,false,false,true,true,true,true
+      // Use CSV, some time series data in annotated CSV instead of client for simple example 
+      const CSV = `#group,false,false,true,true,false,false,true,true,true,true
+#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string,string,string
 #default,_result,,,,,,,,,
-,result,table,_start,_stop,_time,_value,_field,_measurement,cpu,host
-,,0,2020-04-23T16:24:43.27259Z,2020-04-23T16:29:43.27259Z,2020-04-23T16:24:53Z,11.623547056617923,usage_system,cpu,cpu-total,Anais.attlocal.net
-,,0,2020-04-23T16:24:43.27259Z,2020-04-23T16:29:43.27259Z,2020-04-23T16:25:03Z,6.3,usage_system,cpu,cpu-total,Anais.attlocal.net
-,,0,2020-04-23T16:24:43.27259Z,2020-04-23T16:29:43.27259Z,2020-04-23T16:25:13Z,7.075884485560695,usage_system,cpu,cpu-total,Anais.attlocal.net
-,,0,2020-04-23T16:24:43.27259Z,2020-04-23T16:29:43.27259Z,2020-04-23T16:25:23Z,8.184733803720334,usage_system,cpu,cpu-total,Anais.attlocal.net
-,,0,2020-04-23T16:24:43.27259Z,2020-04-23T16:29:43.27259Z,2020-04-23T16:25:33Z,9.6259290849275,usage_system,cpu,cpu-total,Anais.attlocal.net
-,,0,2020-04-23T16:24:43.27259Z,2020-04-23T16:29:43.27259Z,2020-04-23T16:25:43Z,7.824021997250344,usage_system,cpu,cpu-total,Anais.attlocal.net
-,,0,2020-04-23T16:24:43.27259Z,2020-04-23T16:29:43.27259Z,2020-04-23T16:25:53Z,6.606719120769327,usage_system,cpu,cpu-total,Anais.attlocal.net`;
-
+,result,table,_start,_stop,_time,_value,_field,_measurement,example,location
+,,0,2020-03-25T20:58:15.731129Z,2020-04-24T20:58:15.731129Z,2020-04-03T18:31:33.95Z,29.9,value,temperature,index.html,browser
+,,0,2020-03-25T20:58:15.731129Z,2020-04-24T20:58:15.731129Z,2020-04-03T18:55:23.863Z,28.7,value,temperature,index.html,browser
+,,0,2020-03-25T20:58:15.731129Z,2020-04-24T20:58:15.731129Z,2020-04-03T19:50:52.357Z,15,value,temperature,index.html,browser
+,,0,2020-03-25T20:58:15.731129Z,2020-04-24T20:58:15.731129Z,2020-04-03T19:53:37.198Z,24.8,value,temperature,index.html,browser
+,,0,2020-03-25T20:58:15.731129Z,2020-04-24T20:58:15.731129Z,2020-04-03T19:53:53.033Z,23,value,temperature,index.html,browser
+,,0,2020-03-25T20:58:15.731129Z,2020-04-24T20:58:15.731129Z,2020-04-03T20:19:21.88Z,20.1,value,temperature,index.html,browser
+,,0,2020-03-25T20:58:15.731129Z,2020-04-24T20:58:15.731129Z,2020-04-10T22:20:40.776Z,28.7,value,temperature,index.html,browser`;
+      console.log(csv);
       setMethod(fromFlux(csv));
       setFetching("fetched");
     },
@@ -150,8 +70,6 @@ export default (props) => {
 
   const [table, setTable] = useState(null);
   const [fetching, setFetching] = useState("unfetched");
-
-  // console.log("config", lineConfig)
   let plotGraph = <p> Pending </p>;
   let scatterGraph = <p> Pending </p>;
   switch (fetching) {
@@ -176,13 +94,6 @@ export default (props) => {
     case "fetched":
       console.log("fetched");
       console.log(table);
-
-      // const jsTable = table[0];
-
-      // console.log('rendering with jsTable');
-      // console.log(table)
-      // console.log(jsTable)
-
       const lineConfig = {
         table: table.table,
         valueFormatters: {
@@ -205,8 +116,8 @@ export default (props) => {
             type: "line",
             x: "_time",
             y: "_value",
-            fill: ["cpu"],
-            position: "stacked",
+            fill: [],
+            position: "overlaid",
             interpolation: "monotoneX",
             colors: NINETEEN_EIGHTY_FOUR,
             lineWidth: 1,
@@ -239,23 +150,23 @@ export default (props) => {
             type: "scatter",
             x: "_time",
             y: "_value",
-            fill: ["cpu"],
+            fill: [],
             colors: NINETEEN_EIGHTY_FOUR,
-            symbol: ["cpu"],
+            symbol: [],
           },
         ],
       };
       plotGraph = <Plot config={lineConfig} />;
-      // scatterGraph = <Plot config={scatterConfig} />;
+      scatterGraph = <Plot config={scatterConfig} />;
       // plotGraph = <p>Fetched</p>;
-      scatterGraph = <p>Help</p>;
+      // scatterGraph = <p>Help</p>;
       break;
   }
 
   return (
     <>
-      <h2 key="heading-1"> Giraffe Tutorial </h2>, "More text.",
-      <h2 key="heading-2"> Another heading </h2>, "Even more text.",
+      <h2 key="heading-1"> Giraffe Tutorial </h2>, A tutorial for creating a line graph with <a href="https://github.com/influxdata/giraffe">Giraffe</a> from InfluxDB using the JavaScript Client
+      <h3 key="heading-1"> Visualizing cpu data</h3>A Line Graph
       <div
         style={{
           width: "calc(70vw - 20px)",
@@ -265,7 +176,7 @@ export default (props) => {
       >
         {plotGraph}
       </div>
-      , "Even more text.",
+      A Scatter Plot
       <div
         style={{
           width: "calc(70vw - 20px)",
