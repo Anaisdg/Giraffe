@@ -9,7 +9,7 @@ import {
   fromFlux,
 } from "@influxdata/giraffe";
 
-const valueAxisLabel = "GHz";
+const valueAxisLabel = "GB";
 
 
 const fetchData = (setMethod, setFetching) => {
@@ -94,6 +94,8 @@ export default (props) => {
     case "fetched":
       console.log("fetched");
       console.log(table);
+      // console.log("table.table")
+      // console.log(table.table);
       const lineConfig = {
         table: table.table,
         valueFormatters: {
